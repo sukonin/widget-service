@@ -1,0 +1,124 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /api/v1/widget/{id}:
+    get:
+      tags:
+      - widget-controller
+      operationId: getWidget
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/WidgetDto'
+    put:
+      tags:
+      - widget-controller
+      operationId: updateWidget
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WidgetDto'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/WidgetDto'
+    delete:
+      tags:
+      - widget-controller
+      operationId: deleteWidget
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/WidgetDto'
+  /api/v1/widget:
+    get:
+      tags:
+      - widget-controller
+      operationId: getAllWidgets
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/WidgetDto'
+    post:
+      tags:
+      - widget-controller
+      operationId: createWidget
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WidgetDto'
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/WidgetDto'
+components:
+  schemas:
+    WidgetDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        width:
+          type: integer
+          format: int32
+        height:
+          type: integer
+          format: int32
+        modificationDate:
+          type: string
+          format: date-time
+        xpoint:
+          type: number
+          format: float
+        ypoint:
+          type: number
+          format: float
+        zindex:
+          type: integer
+          format: int32
