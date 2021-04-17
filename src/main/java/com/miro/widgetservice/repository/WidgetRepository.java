@@ -1,22 +1,24 @@
 package com.miro.widgetservice.repository;
 
-
-import com.miro.widgetservice.model.WidgetInMemory;
-
+import com.miro.widgetservice.model.Widget;
 import java.util.List;
 import java.util.Optional;
 
 public interface WidgetRepository {
 
-    Optional<WidgetInMemory> findById(Long id);
+    Optional<Widget> findById(Long id);
 
-    List<WidgetInMemory> findAll();
+    List<Widget> findAll();
 
-    WidgetInMemory save(WidgetInMemory widget);
+    List<Widget> findAll(Integer page);
+
+    Widget save(Widget widget);
 
     void deleteById(Long id);
 
     boolean isExist(Long id);
 
-    WidgetInMemory findByZIndex(Integer zIndex);
+    void deleteAll();
+
+    List<Widget> saveAll(List<Widget> widgetList);
 }

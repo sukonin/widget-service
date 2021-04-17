@@ -1,35 +1,22 @@
 package com.miro.widgetservice.converter;
 
 import com.miro.widgetservice.dto.WidgetDto;
-import com.miro.widgetservice.model.WidgetInMemory;
+import com.miro.widgetservice.model.Widget;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
 @Component
+@RequiredArgsConstructor
 public class WidgetConverter {
 
-    public WidgetDto convert(WidgetInMemory widget) {
-        return WidgetDto.builder()
-                .id(widget.getId())
-                .xPoint(widget.getXPoint())
-                .yPoint(widget.getYPoint())
-                .zIndex(widget.getZIndex())
-                .width(widget.getWidth())
-                .height(widget.getHeight())
-                .modificationDate(widget.getModificationDate())
-                .build();
+    private final ModelMapper modelMapper;
+
+    public WidgetDto convert(Widget widget) {
+        return modelMapper.map(widget, WidgetDto.class);
     }
 
-    public WidgetInMemory convert(WidgetDto widgetDto) {
-        return WidgetInMemory.builder()
-                .id(widgetDto.getId())
-                .xPoint(widgetDto.getXPoint())
-                .yPoint(widgetDto.getYPoint())
-                .zIndex(widgetDto.getZIndex())
-                .width(widgetDto.getWidth())
-                .height(widgetDto.getHeight())
-                .modificationDate(LocalDateTime.now())
-                .build();
+    public Widget convert(WidgetDto widgetDto) {
+        return modelMapper.map(widgetDto, Widget.class);
     }
 }

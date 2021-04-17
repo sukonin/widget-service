@@ -1,7 +1,6 @@
 package com.miro.widgetservice.service;
 
 import com.miro.widgetservice.dto.WidgetDto;
-
 import java.util.List;
 
 public interface WidgetService {
@@ -12,7 +11,7 @@ public interface WidgetService {
 
     WidgetDto findById(Long id);
 
-    List<WidgetDto> findAll();
+    List<WidgetDto> findAll(Integer page);
 
     void deleteById(Long id);
 
