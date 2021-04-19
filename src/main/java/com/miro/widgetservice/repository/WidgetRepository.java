@@ -22,6 +22,4 @@ public interface WidgetRepository {
     boolean isExist(Long id);
 
     void deleteAll();
-
-    List<Widget> saveAll(List<Widget> widgetList);
 }

@@ -17,7 +17,6 @@ import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -74,7 +73,7 @@ public class WidgetInMemoryRepository implements WidgetRepository {
 
     @Override
     public List<Widget> findAll(SearchAreaDto searchAreaDto) {
-        if (!isSearchDtoValid(searchAreaDto)) {
+        if (!widgetUtil.isSearchDtoValid(searchAreaDto)) {
             return findAll();
         }
 
@@ -98,13 +97,6 @@ public class WidgetInMemoryRepository implements WidgetRepository {
         widgetStorage = new ConcurrentHashMap<>();
         zIndexStorage = new ConcurrentSkipListMap<>();
         coordinateStorage.deleteAll();
-    }
-
-    @Override
-    public List<Widget> saveAll(List<Widget> widgetList) {
-        return widgetList.stream()
-            .map(this::save)
-            .collect(Collectors.toList());
     }
 
     private Widget persist(Widget widget) {
@@ -206,12 +198,5 @@ public class WidgetInMemoryRepository implements WidgetRepository {
             .yPoint(widget.getYPoint())
             .modificationDate(LocalDateTime.now())
             .build();
-    }
-
-    private boolean isSearchDtoValid(SearchAreaDto searchAreaDto) {
-        return searchAreaDto.getXPoint1() != null &&
-            searchAreaDto.getYPoint1() != null &&
-            searchAreaDto.getXPoint2() != null &&
-            searchAreaDto.getYPoint2() != null;
     }
 }

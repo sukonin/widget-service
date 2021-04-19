@@ -2,6 +2,7 @@ package com.miro.widgetservice;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.miro.widgetservice.dto.ValidationDto;
 import com.miro.widgetservice.dto.WidgetReqDto;
 import com.miro.widgetservice.dto.WidgetRespDto;
 import com.miro.widgetservice.service.WidgetService;
@@ -534,7 +535,7 @@ class WidgetServiceIntegrationTest {
         String response = client
             .perform(get("/api/v1/widget/")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .param("page", "1"))
+                .param("page", "0"))
             .andExpect(status().isOk())
             .andReturn()
             .getResponse()
@@ -547,6 +548,125 @@ class WidgetServiceIntegrationTest {
         BDDAssertions.assertThat(allWidgets)
             .isNotEmpty()
             .hasSize(10);
+    }
+
+    @SneakyThrows
+    @Test
+    void findAll_WithCoordinates_Success() {
+        List<WidgetReqDto> initWidgetList = initData();
+        widgetService.saveAll(initWidgetList);
+
+        //when
+        String response = client
+            .perform(get("/api/v1/widget/")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .param("xPoint1", "5")
+                .param("yPoint1", "5")
+                .param("xPoint2", "205")
+                .param("yPoint2", "105"))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+        List<WidgetRespDto> allWidgets = objectMapper.readValue(response, new TypeReference<>() {
+        });
+
+        //then
+        BDDAssertions.assertThat(allWidgets)
+            .isNotEmpty()
+            .hasSize(initWidgetList.size());
+    }
+
+    @SneakyThrows
+    @Test
+    void findAll_WithCoordinatesAndOneOutsideOfRectangle_Success() {
+        List<WidgetReqDto> initWidgetList = initData();
+        widgetService.saveAll(initWidgetList);
+        WidgetRespDto widgetRespDto = widgetService.create(getWidget(100, 100, 100, 100));
+
+        //when
+        String response = client
+            .perform(get("/api/v1/widget/")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .param("xPoint1", "5")
+                .param("yPoint1", "5")
+                .param("xPoint2", "205")
+                .param("yPoint2", "105"))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+        List<WidgetRespDto> allWidgets = objectMapper.readValue(response, new TypeReference<>() {
+        });
+
+        //then
+        BDDAssertions.assertThat(allWidgets)
+            .isNotEmpty()
+            .doesNotContain(widgetRespDto)
+            .hasSize(initWidgetList.size());
+    }
+
+    @SneakyThrows
+    @Test
+    void findAll_WithNoValidCoordinates_ShouldReturnAll() {
+        List<WidgetReqDto> initWidgetList = initData();
+        widgetService.saveAll(initWidgetList);
+        WidgetRespDto widgetRespDto = widgetService.create(getWidget(100, 100, 100, 100));
+
+        //when
+        String response = client
+            .perform(get("/api/v1/widget/")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .param("xPoint1", "5")
+                .param("yPoint1", "5")
+                .param("xPoint2", "205"))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+        List<WidgetRespDto> allWidgets = objectMapper.readValue(response, new TypeReference<>() {
+        });
+
+        //then
+        BDDAssertions.assertThat(allWidgets)
+            .isNotEmpty()
+            .contains(widgetRespDto)
+            .hasSize(initWidgetList.size() + 1);
+    }
+
+    @SneakyThrows
+    @Test
+    void create_InvalidDto_ThrowException() {
+        //given
+        WidgetReqDto widget = WidgetReqDto.builder()
+            .height(0)
+            .width(0)
+            .xPoint(0)
+            .yPoint(0)
+            .zIndex(0)
+            .build();
+
+        //when
+        String response = client
+            .perform(post("/api/v1/widget")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(widget)))
+            .andExpect(status().isBadRequest())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+        List<ValidationDto> validationDtos = objectMapper.readValue(response, new TypeReference<List<ValidationDto>>() {
+        });
+
+        //then
+        BDDAssertions.assertThat(validationDtos)
+            .isNotNull()
+            .isNotEmpty()
+            .hasSize(2);
     }
 
     private List<WidgetReqDto> initData() {
@@ -562,6 +682,16 @@ class WidgetServiceIntegrationTest {
             .xPoint(5)
             .yPoint(5)
             .zIndex(zIndex)
+            .build();
+    }
+
+    private WidgetReqDto getWidget(Integer x, Integer y, Integer height, Integer width) {
+        return WidgetReqDto.builder()
+            .height(height)
+            .width(width)
+            .xPoint(x)
+            .yPoint(y)
+            .zIndex(0)
             .build();
     }
 

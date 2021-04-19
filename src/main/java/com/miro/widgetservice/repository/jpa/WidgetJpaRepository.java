@@ -16,7 +16,7 @@ public interface WidgetJpaRepository extends JpaRepository<WidgetEntity, Long> {
         + "where w.zIndex >=:zIndexStart and w.zIndex <= :zIndexEnd")
     Integer incrementFromIndexToIndex(Integer zIndexStart, Integer zIndexEnd);
 
-    @Query("select w from WidgetEntity w where w.zIndex >= :zIndex order by w.zIndex desc")
+    @Query("select w from WidgetEntity w where w.zIndex >= :zIndex order by w.zIndex asc")
     List<WidgetEntity> findAllWithEqualOrGreaterZIndex(Integer zIndex);
 
     @Query("select max(w.zIndex) FROM WidgetEntity w")

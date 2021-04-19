@@ -89,15 +89,11 @@ public class WidgetServiceJpaImpl implements WidgetService {
 
         if (Objects.isNull(page)) {
             if (widgetUtil.isSearchDtoValid(searchAreaDto)) {
-                return widgetRepository.findAll(searchAreaDto)
-                    .stream()
-                    .map(widgetConverter::convertEntity)
-                    .collect(Collectors.toList());
+                List<WidgetEntity> widgetEntities = widgetRepository.findAll(searchAreaDto);
+                return mapAndCollect(widgetEntities);
             }
-            return widgetRepository.findAll(sort)
-                .stream()
-                .map(widgetConverter::convertEntity)
-                .collect(Collectors.toList());
+            List<WidgetEntity> widgetEntities = widgetRepository.findAll(sort);
+            return mapAndCollect(widgetEntities);
         }
 
         if (page < 0) {
@@ -113,10 +109,8 @@ public class WidgetServiceJpaImpl implements WidgetService {
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         if (widgetUtil.isSearchDtoValid(searchAreaDto)) {
-            return widgetRepository.findAll(searchAreaDto, pageRequest)
-                .stream()
-                .map(widgetConverter::convertEntity)
-                .collect(Collectors.toList());
+            List<WidgetEntity> widgetEntities = widgetRepository.findAll(searchAreaDto, pageRequest);
+            return mapAndCollect(widgetEntities);
         }
         return widgetRepository.findAll(pageRequest)
             .stream()
@@ -182,27 +176,6 @@ public class WidgetServiceJpaImpl implements WidgetService {
             && widgetRepository.existsByzIndex(widgetForUpdate.getZIndex());
     }
 
-    private Integer getLastZIndex() {
-        Integer maxZIndex = widgetRepository.findMaxZIndex();
-        if (maxZIndex == null) {
-            return 0;
-        }
-        if (Integer.MAX_VALUE == maxZIndex) {
-            throw new WidgetServiceException("z Index reach maximum");
-        } else {
-            return maxZIndex + 1;
-        }
-    }
-
-    private String getErrorMessage(Long id) {
-        return "Widget with id " + id + " does not exist";
-    }
-
-    private boolean isExist(Long id) {
-        log.info("Widget is exist by id {}", id);
-        return widgetRepository.existsById(id);
-    }
-
     private void shiftAndIncrement(Integer zIndex) {
         List<WidgetEntity> widgetEntities = widgetRepository.findAllWithEqualOrGreaterZIndex(zIndex);
 
@@ -215,5 +188,33 @@ public class WidgetServiceJpaImpl implements WidgetService {
 
         Integer shifted = widgetRepository.incrementFromIndexToIndex(zIndex, lastZIndexWithoutGap);
         log.info("{} widgets was shifted", shifted);
+    }
+
+    private Integer getLastZIndex() {
+        Integer maxZIndex = widgetRepository.findMaxZIndex();
+        if (maxZIndex == null) {
+            return 0;
+        }
+        if (Integer.MAX_VALUE == maxZIndex) {
+            throw new WidgetServiceException("z Index reach maximum");
+        } else {
+            return maxZIndex + 1;
+        }
+    }
+
+    private List<WidgetRespDto> mapAndCollect(List<WidgetEntity> widgetEntities) {
+        return widgetEntities
+            .stream()
+            .map(widgetConverter::convertEntity)
+            .collect(Collectors.toList());
+    }
+
+    private String getErrorMessage(Long id) {
+        return "Widget with id " + id + " does not exist";
+    }
+
+    private boolean isExist(Long id) {
+        log.info("Widget is exist by id {}", id);
+        return widgetRepository.existsById(id);
     }
 }

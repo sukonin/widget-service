@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class WidgetServiceImpl implements WidgetService {
+public class WidgetServiceInMemoryImpl implements WidgetService {
 
     private final WidgetRepository widgetRepository;
 
