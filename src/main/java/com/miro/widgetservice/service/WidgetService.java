@@ -15,6 +15,11 @@ public interface WidgetService {
 
     List<WidgetRespDto> findAll(Integer page, Integer size, SearchAreaDto searchAreaDto);
 
+    List<WidgetRespDto> findAll();
+
     void deleteById(Long id);
 
+    void deleteAll();
+
+    List<WidgetRespDto> saveAll(List<WidgetReqDto> initWidgetList);
 }

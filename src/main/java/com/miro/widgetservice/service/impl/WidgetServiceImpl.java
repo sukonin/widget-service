@@ -39,10 +39,10 @@ public class WidgetServiceImpl implements WidgetService {
 
     @Override
     public WidgetRespDto update(Long id, WidgetReqDto widgetReqDto) {
-        widgetReqDto.setId(id);
         log.info("Update widget {}", widgetReqDto);
         if (isExist(id)) {
             Widget widget = widgetConverter.convert(widgetReqDto);
+            widget.setId(id);
             widget.setModificationDate(LocalDateTime.now());
             Widget savedWidget = widgetRepository.save(widget);
             return widgetConverter.convert(savedWidget);
@@ -82,6 +82,13 @@ public class WidgetServiceImpl implements WidgetService {
     }
 
     @Override
+    public List<WidgetRespDto> findAll() {
+        return widgetRepository.findAll().stream()
+            .map(widgetConverter::convert)
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public void deleteById(Long id) {
         log.info("Delete widget by id {}", id);
 
@@ -91,6 +98,18 @@ public class WidgetServiceImpl implements WidgetService {
         }
 
         throw new WidgetServiceException(getErrorMessage(id));
+    }
+
+    @Override
+    public void deleteAll() {
+        widgetRepository.deleteAll();
+    }
+
+    @Override
+    public List<WidgetRespDto> saveAll(List<WidgetReqDto> widgetList) {
+        return widgetList.stream()
+            .map(this::create)
+            .collect(Collectors.toList());
     }
 
     private boolean isExist(Long id) {

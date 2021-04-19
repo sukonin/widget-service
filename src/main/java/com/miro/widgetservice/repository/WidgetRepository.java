@@ -13,6 +13,8 @@ public interface WidgetRepository {
 
     List<Widget> findAll(Integer page, Integer size, SearchAreaDto searchAreaDto);
 
+    List<Widget> findAll(SearchAreaDto searchAreaDto);
+
     Widget save(Widget widget);
 
     void deleteById(Long id);
@@ -22,6 +24,4 @@ public interface WidgetRepository {
     void deleteAll();
 
     List<Widget> saveAll(List<Widget> widgetList);
-
-    List<Widget> findAll(SearchAreaDto searchAreaDto);
 }

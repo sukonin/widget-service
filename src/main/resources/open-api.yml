@@ -3,21 +3,21 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:8080
-  description: Generated server url
+  - url: http://localhost:8080
+    description: Generated server url
 paths:
   /api/v1/widget/{id}:
     get:
       tags:
-      - widget-controller
+        - widget-controller
       operationId: getWidget
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         "400":
           description: Bad Request
@@ -25,10 +25,10 @@ paths:
             '*/*':
               schema:
                 oneOf:
-                - type: array
-                  items:
-                    $ref: '#/components/schemas/ValidationDto'
-                - type: string
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/ValidationDto'
+                  - type: string
         "500":
           description: Internal Server Error
           content:
@@ -43,15 +43,15 @@ paths:
                 $ref: '#/components/schemas/WidgetRespDto'
     put:
       tags:
-      - widget-controller
+        - widget-controller
       operationId: updateWidget
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -65,10 +65,10 @@ paths:
             '*/*':
               schema:
                 oneOf:
-                - type: array
-                  items:
-                    $ref: '#/components/schemas/ValidationDto'
-                - type: string
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/ValidationDto'
+                  - type: string
         "500":
           description: Internal Server Error
           content:
@@ -83,15 +83,15 @@ paths:
                 $ref: '#/components/schemas/WidgetRespDto'
     delete:
       tags:
-      - widget-controller
+        - widget-controller
       operationId: deleteWidget
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         "400":
           description: Bad Request
@@ -99,10 +99,10 @@ paths:
             '*/*':
               schema:
                 oneOf:
-                - type: array
-                  items:
-                    $ref: '#/components/schemas/ValidationDto'
-                - type: string
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/ValidationDto'
+                  - type: string
         "500":
           description: Internal Server Error
           content:
@@ -114,45 +114,45 @@ paths:
   /api/v1/widget:
     get:
       tags:
-      - widget-controller
+        - widget-controller
       operationId: getAllWidgets
       parameters:
-      - name: page
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-      - name: size
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-      - name: xPoint1
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-      - name: yPoint1
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-      - name: xPoint2
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-      - name: yPoint2
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: xPoint1
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: yPoint1
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: xPoint2
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: yPoint2
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
       responses:
         "400":
           description: Bad Request
@@ -160,10 +160,10 @@ paths:
             '*/*':
               schema:
                 oneOf:
-                - type: array
-                  items:
-                    $ref: '#/components/schemas/ValidationDto'
-                - type: string
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/ValidationDto'
+                  - type: string
         "500":
           description: Internal Server Error
           content:
@@ -180,7 +180,7 @@ paths:
                   $ref: '#/components/schemas/WidgetRespDto'
     post:
       tags:
-      - widget-controller
+        - widget-controller
       operationId: createWidget
       requestBody:
         content:
@@ -195,10 +195,10 @@ paths:
             '*/*':
               schema:
                 oneOf:
-                - type: array
-                  items:
-                    $ref: '#/components/schemas/ValidationDto'
-                - type: string
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/ValidationDto'
+                  - type: string
         "500":
           description: Internal Server Error
           content:
@@ -222,8 +222,8 @@ components:
           type: string
     WidgetReqDto:
       required:
-      - height
-      - width
+        - height
+        - width
       type: object
       properties:
         id:

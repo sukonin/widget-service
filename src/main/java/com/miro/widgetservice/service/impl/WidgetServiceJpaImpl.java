@@ -57,7 +57,6 @@ public class WidgetServiceJpaImpl implements WidgetService {
     @Override
     @Transactional
     public WidgetRespDto update(Long id, WidgetReqDto widgetReqDto) {
-        widgetReqDto.setId(id);
         log.info("Update widget {}", widgetReqDto);
 
         WidgetEntity storedWidget = widgetRepository.findById(id)
@@ -65,6 +64,7 @@ public class WidgetServiceJpaImpl implements WidgetService {
 
         if (!Objects.isNull(storedWidget)) {
             WidgetEntity widgetForUpdate = widgetConverter.convertEntity(widgetReqDto);
+            widgetForUpdate.setId(id);
             WidgetEntity updatedWidget = merge(widgetForUpdate, storedWidget);
             return widgetConverter.convertEntity(updatedWidget);
         }
@@ -137,6 +137,27 @@ public class WidgetServiceJpaImpl implements WidgetService {
         throw new WidgetServiceException(getErrorMessage(id));
     }
 
+    @Override
+    @Transactional
+    public void deleteAll() {
+        log.info("Delete all");
+        widgetRepository.deleteAll();
+    }
+
+    @Override
+    public List<WidgetRespDto> saveAll(List<WidgetReqDto> widgetList) {
+        return widgetList.stream()
+            .map(this::create)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<WidgetRespDto> findAll() {
+        return widgetRepository.findAll(Sort.by(Sort.Direction.ASC, "zIndex")).stream()
+            .map(widgetConverter::convertEntity)
+            .collect(Collectors.toList());
+    }
+
     private WidgetEntity merge(WidgetEntity widgetForUpdate, WidgetEntity storedWidget) {
         Integer zIndex = widgetForUpdate.getZIndex();
 
@@ -153,7 +174,7 @@ public class WidgetServiceJpaImpl implements WidgetService {
         if (shouldShift(widgetForUpdate, storedWidget)) {
             shiftAndIncrement(zIndex);
         }
-        return widgetRepository.save(widgetForUpdate);
+        return widgetRepository.saveAndFlush(widgetForUpdate);
     }
 
     private boolean shouldShift(WidgetEntity widgetForUpdate, WidgetEntity storedWidget) {

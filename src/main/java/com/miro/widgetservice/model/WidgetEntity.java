@@ -60,18 +60,10 @@ public class WidgetEntity {
     private LocalDateTime modificationDate;
 
     @PrePersist
-    public void prePersist() {
-        prepareEntity();
-    }
-
     @PreUpdate
-    public void preUpdate() {
-        prepareEntity();
-    }
-
     private void prepareEntity() {
         setXPoint2(getXPoint() + getWidth());
-        setYPoint2(getXPoint() + getWidth());
+        setYPoint2(getYPoint() + getHeight());
         setModificationDate(LocalDateTime.now());
     }
 

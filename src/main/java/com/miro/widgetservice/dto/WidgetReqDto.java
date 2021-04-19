@@ -17,8 +17,6 @@ import lombok.ToString;
 @ToString
 public class WidgetReqDto {
 
-    private Long id;
-
     @NotNull
     private Integer xPoint;
 
