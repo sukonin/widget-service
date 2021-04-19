@@ -1,7 +1,9 @@
 package com.miro.widgetservice.service.impl;
 
 import com.miro.widgetservice.converter.WidgetConverter;
-import com.miro.widgetservice.dto.WidgetDto;
+import com.miro.widgetservice.dto.SearchAreaDto;
+import com.miro.widgetservice.dto.WidgetReqDto;
+import com.miro.widgetservice.dto.WidgetRespDto;
 import com.miro.widgetservice.exception.WidgetServiceException;
 import com.miro.widgetservice.model.Widget;
 import com.miro.widgetservice.repository.WidgetRepository;
@@ -12,8 +14,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+@Profile("memory")
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,9 +28,9 @@ public class WidgetServiceImpl implements WidgetService {
     private final WidgetConverter widgetConverter;
 
     @Override
-    public WidgetDto create(WidgetDto widgetDto) {
-        log.info("Create new widget {}", widgetDto);
-        Widget widgetToUpdate = widgetConverter.convert(widgetDto);
+    public WidgetRespDto create(WidgetReqDto widgetReqDto) {
+        log.info("Create new widget {}", widgetReqDto);
+        Widget widgetToUpdate = widgetConverter.convert(widgetReqDto);
         widgetToUpdate.setModificationDate(LocalDateTime.now());
         Widget savedWidget = widgetRepository.save(widgetToUpdate);
 
@@ -34,42 +38,45 @@ public class WidgetServiceImpl implements WidgetService {
     }
 
     @Override
-    public WidgetDto update(Long id, WidgetDto widgetDto) {
-        widgetDto.setId(id);
-        log.info("Update widget {}", widgetDto);
+    public WidgetRespDto update(Long id, WidgetReqDto widgetReqDto) {
+        widgetReqDto.setId(id);
+        log.info("Update widget {}", widgetReqDto);
         if (isExist(id)) {
-            Widget widget = widgetConverter.convert(widgetDto);
+            Widget widget = widgetConverter.convert(widgetReqDto);
             widget.setModificationDate(LocalDateTime.now());
             Widget savedWidget = widgetRepository.save(widget);
             return widgetConverter.convert(savedWidget);
         }
 
-        throw new WidgetServiceException("Widget with id " + id + " does not exist");
+        throw new WidgetServiceException(getErrorMessage(id));
     }
 
     @Override
-    public WidgetDto findById(Long id) {
+    public WidgetRespDto findById(Long id) {
         log.info("Find widget by id {}", id);
 
-        Widget existWidget = widgetRepository.findById(id)
-            .orElseThrow(() -> new WidgetServiceException("Widget with id " + id + " does not exist"));
-
-        return widgetConverter.convert(existWidget);
+        return widgetRepository.findById(id)
+            .map(widgetConverter::convert)
+            .orElseThrow(() -> new WidgetServiceException(getErrorMessage(id)));
     }
 
     @Override
-    public List<WidgetDto> findAll(Integer page) {
-        log.info("Find all widgets. Page: {}", page);
+    public List<WidgetRespDto> findAll(Integer page, Integer size, SearchAreaDto searchAreaDto) {
+        log.info("Find all widgets. Page: {} and Size: {}", page, size);
 
         if (Objects.isNull(page)) {
-            return widgetRepository.findAll().stream()
+            return widgetRepository.findAll(searchAreaDto).stream()
                 .map(widgetConverter::convert)
                 .collect(Collectors.toList());
         }
         if (page < 0) {
-            throw new WidgetServiceException("Page cannot be negative");
+            throw new WidgetServiceException("Invalid page argument");
         }
-        return widgetRepository.findAll(page).stream()
+        if (!Objects.isNull(size) && (size < 0 || size > 500)) {
+            throw new WidgetServiceException("Invalid size argument");
+        }
+
+        return widgetRepository.findAll(page, size, searchAreaDto).stream()
             .map(widgetConverter::convert)
             .collect(Collectors.toList());
     }
@@ -82,12 +89,16 @@ public class WidgetServiceImpl implements WidgetService {
             widgetRepository.deleteById(id);
             return;
         }
-        throw new WidgetServiceException("Widget with id " + id + " does not exist");
+
+        throw new WidgetServiceException(getErrorMessage(id));
     }
 
     private boolean isExist(Long id) {
         log.info("Widget is exist by id {}", id);
-
         return widgetRepository.isExist(id);
+    }
+
+    private String getErrorMessage(Long id) {
+        return "Widget with id " + id + " does not exist";
     }
 }

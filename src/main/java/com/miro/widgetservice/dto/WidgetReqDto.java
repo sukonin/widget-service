@@ -1,6 +1,5 @@
 package com.miro.widgetservice.dto;
 
-import java.time.LocalDateTime;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -16,15 +15,15 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder
 @ToString
-public class WidgetDto {
+public class WidgetReqDto {
 
     private Long id;
 
     @NotNull
-    private Float xPoint;
+    private Integer xPoint;
 
     @NotNull
-    private Float yPoint;
+    private Integer yPoint;
 
     private Integer zIndex;
 
@@ -35,6 +34,4 @@ public class WidgetDto {
     @NotNull
     @Positive
     private Integer height;
-
-    private LocalDateTime modificationDate;
 }

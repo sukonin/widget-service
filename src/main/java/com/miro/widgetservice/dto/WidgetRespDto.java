@@ -1,7 +1,6 @@
-package com.miro.widgetservice.model;
+package com.miro.widgetservice.dto;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,8 +14,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder
 @ToString
-public class Widget {
-
+public class WidgetRespDto {
     private Long id;
 
     private Integer xPoint;
@@ -30,22 +28,4 @@ public class Widget {
     private Integer height;
 
     private LocalDateTime modificationDate;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Widget)) {
-            return false;
-        }
-        Widget widget = (Widget)o;
-        return getId().equals(widget.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId());
-    }
 }
-

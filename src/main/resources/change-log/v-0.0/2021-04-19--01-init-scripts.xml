@@ -1,0 +1,45 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="andrei_sukonin" id="2021-02-26-initial-schema-import-1">
+        <createTable schemaName="public" tableName="widgets">
+            <column autoIncrement="true" name="id" type="SERIAL">
+                <constraints primaryKey="true" primaryKeyName="widgets_pkey"/>
+            </column>
+            <column name="x_point" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="y_point" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="x_point2" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="y_point2" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="z_index" type="int">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="width" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="height" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modification_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex indexName="coordinate_index" tableName="widgets">
+            <column name="x_point" type="int"/>
+            <column name="y_point" type="int"/>
+            <column name="x_point2" type="int"/>
+            <column name="y_point2" type="int"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

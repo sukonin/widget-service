@@ -28,13 +28,15 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public List<ValidationDto> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
-        log.error(exception.getMessage(), exception);
-
         BindingResult result = exception.getBindingResult();
         List<FieldError> fieldErrors = result.getFieldErrors();
-        return fieldErrors.stream()
+        List<ValidationDto> validationDtos = fieldErrors.stream()
             .map(this::processFieldError)
             .collect(Collectors.toList());
+
+        log.error(validationDtos.toString(), exception);
+
+        return validationDtos;
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

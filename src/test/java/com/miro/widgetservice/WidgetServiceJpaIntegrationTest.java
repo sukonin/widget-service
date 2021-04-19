@@ -4,8 +4,10 @@ package com.miro.widgetservice;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miro.widgetservice.model.Widget;
-import com.miro.widgetservice.repository.WidgetRepository;
+import com.miro.widgetservice.model.WidgetEntity;
+import com.miro.widgetservice.repository.jpa.WidgetJpaRepository;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,9 +37,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ActiveProfiles("memory")
+@ActiveProfiles("database")
 @SpringBootTest(classes = WidgetServiceApplication.class)
-class WidgetServiceIntegrationTest {
+class WidgetServiceJpaIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -46,7 +48,7 @@ class WidgetServiceIntegrationTest {
     private WebApplicationContext wac;
 
     @Autowired
-    private WidgetRepository widgetRepository;
+    private WidgetJpaRepository widgetRepository;
 
     protected MockMvc client;
 
@@ -64,7 +66,7 @@ class WidgetServiceIntegrationTest {
     @ParameterizedTest
     @MethodSource("zIndexGenerator")
     void create_CreateWidget_Success(Integer zIndex) {
-        List<Widget> initWidgetList = initData();
+        List<WidgetEntity> initWidgetList = initData();
         widgetRepository.saveAll(initWidgetList);
 
         //given
@@ -86,13 +88,13 @@ class WidgetServiceIntegrationTest {
             .getResponse()
             .getContentAsString();
 
-        Widget savedWidget = objectMapper.readValue(response, Widget.class);
+        WidgetEntity savedWidget = objectMapper.readValue(response, WidgetEntity.class);
 
         //then
-        List<Widget> widgets = widgetRepository.findAll();
+        List<WidgetEntity> widgets = widgetRepository.findAll();
 
         HashSet<Integer> uniqueZIndex = widgets.stream()
-            .map(Widget::getZIndex)
+            .map(WidgetEntity::getZIndex)
             .collect(Collectors.toCollection(HashSet::new));
 
         BDDAssertions.assertThat(widgets)
@@ -124,7 +126,7 @@ class WidgetServiceIntegrationTest {
             .andExpect(status().isBadRequest());
 
         //then
-        List<Widget> widgets = widgetRepository.findAll();
+        List<WidgetEntity> widgets = widgetRepository.findAll();
 
         BDDAssertions.assertThat(widgets)
             .hasSize(1);
@@ -154,10 +156,11 @@ class WidgetServiceIntegrationTest {
             .getResponse()
             .getContentAsString();
 
-        Widget savedWidget = objectMapper.readValue(response, Widget.class);
+        WidgetEntity savedWidget = objectMapper.readValue(response, WidgetEntity.class);
 
         //then
-        List<Widget> widgets = widgetRepository.findAll();
+        List<WidgetEntity> widgets = widgetRepository.findAll();
+        widgets.sort(Comparator.comparing(WidgetEntity::getZIndex));
 
         Condition<Integer> i1Condition = new Condition<>(i -> i.equals(Integer.MAX_VALUE), "index");
         Condition<Integer> i2Condition = new Condition<>(i -> i.equals(Integer.MAX_VALUE - 1), "index");
@@ -165,7 +168,7 @@ class WidgetServiceIntegrationTest {
         BDDAssertions.assertThat(widgets)
             .hasSize(2)
             .contains(savedWidget)
-            .extracting(Widget::getZIndex)
+            .extracting(WidgetEntity::getZIndex)
             .has(i1Condition, Index.atIndex(1))
             .has(i2Condition, Index.atIndex(0));
     }
@@ -194,10 +197,11 @@ class WidgetServiceIntegrationTest {
             .getResponse()
             .getContentAsString();
 
-        Widget savedWidget = objectMapper.readValue(response, Widget.class);
+        WidgetEntity savedWidget = objectMapper.readValue(response, WidgetEntity.class);
 
         //then
-        List<Widget> widgets = widgetRepository.findAll();
+        List<WidgetEntity> widgets = widgetRepository.findAll();
+        widgets.sort(Comparator.comparing(WidgetEntity::getZIndex));
 
         Condition<Integer> i1Condition = new Condition<>(i -> i.equals(Integer.MIN_VALUE), "index");
         Condition<Integer> i2Condition = new Condition<>(i -> i.equals(Integer.MIN_VALUE + 1), "index");
@@ -205,7 +209,7 @@ class WidgetServiceIntegrationTest {
         BDDAssertions.assertThat(widgets)
             .hasSize(2)
             .contains(savedWidget)
-            .extracting(Widget::getZIndex)
+            .extracting(WidgetEntity::getZIndex)
             .has(i1Condition, Index.atIndex(0))
             .has(i2Condition, Index.atIndex(1));
     }
@@ -231,17 +235,17 @@ class WidgetServiceIntegrationTest {
             .getResponse()
             .getContentAsString();
 
-        Widget savedWidget = objectMapper.readValue(response, Widget.class);
+        WidgetEntity savedWidget = objectMapper.readValue(response, WidgetEntity.class);
 
         //then
-        List<Widget> widgets = widgetRepository.findAll();
+        List<WidgetEntity> widgets = widgetRepository.findAll();
 
         Condition<Integer> i2Condition = new Condition<>(i -> i.equals(0), "index");
 
         BDDAssertions.assertThat(widgets)
             .hasSize(1)
             .contains(savedWidget)
-            .extracting(Widget::getZIndex)
+            .extracting(WidgetEntity::getZIndex)
             .has(i2Condition, Index.atIndex(0));
     }
 
@@ -266,7 +270,7 @@ class WidgetServiceIntegrationTest {
             .andExpect(status().isBadRequest());
 
         //then
-        List<Widget> widgets = widgetRepository.findAll();
+        List<WidgetEntity> widgets = widgetRepository.findAll();
 
         BDDAssertions.assertThat(widgets)
             .hasSize(1);
@@ -275,7 +279,7 @@ class WidgetServiceIntegrationTest {
     @Test
     @SneakyThrows
     void findById_ExistInDatabase_Success() {
-        Widget savedWidget = widgetRepository.save(getWidget(1));
+        WidgetEntity savedWidget = widgetRepository.save(getWidget(1));
 
         //when
         String body = client
@@ -286,7 +290,7 @@ class WidgetServiceIntegrationTest {
             .getResponse()
             .getContentAsString();
 
-        Widget widget = objectMapper.readValue(body, Widget.class);
+        WidgetEntity widget = objectMapper.readValue(body, WidgetEntity.class);
 
         //then
         BDDAssertions.assertThat(savedWidget).isEqualTo(widget);
@@ -295,7 +299,7 @@ class WidgetServiceIntegrationTest {
     @Test
     @SneakyThrows
     void findById_DoesNotExistInDatabase_ThrowException() {
-        Widget savedWidget = widgetRepository.save(getWidget(1));
+        WidgetEntity savedWidget = widgetRepository.save(getWidget(1));
         long notExistId = savedWidget.getId() + 1;
 
         client
@@ -307,7 +311,7 @@ class WidgetServiceIntegrationTest {
     @Test
     @SneakyThrows
     void deleteById_ExistIdDatabase_Success() {
-        Widget savedWidget = widgetRepository.save(getWidget(1));
+        WidgetEntity savedWidget = widgetRepository.save(getWidget(1));
 
         client
             .perform(delete("/api/v1/widget/" + savedWidget.getId())
@@ -320,7 +324,7 @@ class WidgetServiceIntegrationTest {
     @Test
     @SneakyThrows
     void deleteById_DoesNotExistInDatabase_ThrowException() {
-        Widget savedWidget = widgetRepository.save(getWidget(1));
+        WidgetEntity savedWidget = widgetRepository.save(getWidget(1));
 
         client
             .perform(delete("/api/v1/widget/" + savedWidget.getId() + 1)
@@ -334,8 +338,8 @@ class WidgetServiceIntegrationTest {
     @ParameterizedTest
     @MethodSource("zIndexGenerator")
     void update_UpdateWidget_Success(Integer zIndex) {
-        List<Widget> initWidgetList = initData();
-        Widget storedWidget = widgetRepository.saveAll(initWidgetList).get(0);
+        List<WidgetEntity> initWidgetList = initData();
+        WidgetEntity storedWidget = widgetRepository.saveAll(initWidgetList).get(0);
 
         //given
         Widget widgetForUpdate = Widget.builder()
@@ -357,13 +361,13 @@ class WidgetServiceIntegrationTest {
             .getResponse()
             .getContentAsString();
 
-        Widget savedWidget = objectMapper.readValue(response, Widget.class);
+        WidgetEntity savedWidget = objectMapper.readValue(response, WidgetEntity.class);
 
         //then
-        List<Widget> widgets = widgetRepository.findAll();
+        List<WidgetEntity> widgets = widgetRepository.findAll();
 
         HashSet<Integer> uniqueZIndex = widgets.stream()
-            .map(Widget::getZIndex)
+            .map(WidgetEntity::getZIndex)
             .collect(Collectors.toCollection(HashSet::new));
 
         BDDAssertions.assertThat(widgets)
@@ -376,8 +380,8 @@ class WidgetServiceIntegrationTest {
     @SneakyThrows
     @Test
     void update_UpdateWidgetIfMaxZIndexExist_ThrowException() {
-        List<Widget> initWidgetList = initData();
-        Widget storedWidget = widgetRepository.saveAll(initWidgetList).get(0);
+        List<WidgetEntity> initWidgetList = initData();
+        WidgetEntity storedWidget = widgetRepository.saveAll(initWidgetList).get(0);
         widgetRepository.save(getWidget(Integer.MAX_VALUE));
 
         //given
@@ -398,7 +402,7 @@ class WidgetServiceIntegrationTest {
             .andExpect(status().isBadRequest());
 
         //then
-        List<Widget> widgets = widgetRepository.findAll();
+        List<WidgetEntity> widgets = widgetRepository.findAll();
 
         BDDAssertions.assertThat(widgets)
             .isNotEmpty();
@@ -410,16 +414,16 @@ class WidgetServiceIntegrationTest {
     @SneakyThrows
     @Test
     void update_UpdateWidgetDoesNotExist_ThrowException() {
-        List<Widget> initWidgetList = initData();
-        Widget storedWidget = widgetRepository.saveAll(initWidgetList).get(0);
+        List<WidgetEntity> initWidgetList = initData();
+        WidgetEntity storedWidget = widgetRepository.saveAll(initWidgetList).get(0);
 
         //given
-        Widget widgetForUpdate = Widget.builder()
+        WidgetEntity widgetForUpdate = WidgetEntity.builder()
             .id(100000000000L)
             .height(50)
             .width(50)
-            .xPoint(5f)
-            .yPoint(5f)
+            .xPoint(5)
+            .yPoint(5)
             .zIndex(0)
             .build();
 
@@ -431,7 +435,7 @@ class WidgetServiceIntegrationTest {
             .andExpect(status().isBadRequest());
 
         //then
-        List<Widget> widgets = widgetRepository.findAll();
+        List<WidgetEntity> widgets = widgetRepository.findAll();
 
         BDDAssertions.assertThat(widgets)
             .isNotEmpty()
@@ -441,16 +445,16 @@ class WidgetServiceIntegrationTest {
     @SneakyThrows
     @Test
     void update_UpdateWidgetWithoutZIndexWhenItForeground_Success() {
-        List<Widget> initWidgetList = initData();
-        Widget foregroundWidget = widgetRepository.saveAll(initWidgetList).get(initWidgetList.size() - 1);
+        List<WidgetEntity> initWidgetList = initData();
+        WidgetEntity foregroundWidget = widgetRepository.saveAll(initWidgetList).get(initWidgetList.size() - 1);
 
         //given
-        Widget widgetForUpdate = Widget.builder()
+        WidgetEntity widgetForUpdate = WidgetEntity.builder()
             .id(foregroundWidget.getId())
             .height(50)
             .width(50)
-            .xPoint(5f)
-            .yPoint(5f)
+            .xPoint(5)
+            .yPoint(5)
             .build();
 
         //when
@@ -463,10 +467,10 @@ class WidgetServiceIntegrationTest {
             .getResponse()
             .getContentAsString();
 
-        Widget savedWidget = objectMapper.readValue(response, Widget.class);
+        WidgetEntity savedWidget = objectMapper.readValue(response, WidgetEntity.class);
 
         //then
-        List<Widget> widgets = widgetRepository.findAll();
+        List<WidgetEntity> widgets = widgetRepository.findAll();
 
         BDDAssertions.assertThat(widgets)
             .isNotEmpty()
@@ -480,8 +484,8 @@ class WidgetServiceIntegrationTest {
     @SneakyThrows
     @Test
     void findAll_WithoutPagging_Success() {
-        List<Widget> initWidgetList = initData();
-        List<Widget> storedWidgets = widgetRepository.saveAll(initWidgetList);
+        List<WidgetEntity> initWidgetList = initData();
+        List<WidgetEntity> storedWidgets = widgetRepository.saveAll(initWidgetList);
 
         //when
         String response = client
@@ -492,7 +496,7 @@ class WidgetServiceIntegrationTest {
             .getResponse()
             .getContentAsString();
 
-        List<Widget> allWidgets = objectMapper.readValue(response, new TypeReference<>() {
+        List<WidgetEntity> allWidgets = objectMapper.readValue(response, new TypeReference<>() {
         });
 
         //then
@@ -515,7 +519,7 @@ class WidgetServiceIntegrationTest {
             .getResponse()
             .getContentAsString();
 
-        List<Widget> allWidgets = objectMapper.readValue(response, new TypeReference<>() {
+        List<WidgetEntity> allWidgets = objectMapper.readValue(response, new TypeReference<>() {
         });
 
         //then
@@ -526,7 +530,7 @@ class WidgetServiceIntegrationTest {
     @SneakyThrows
     @Test
     void findAll_Pagging_Success() {
-        List<Widget> initWidgetList = initData();
+        List<WidgetEntity> initWidgetList = initData();
         widgetRepository.saveAll(initWidgetList);
 
         //when
@@ -539,7 +543,7 @@ class WidgetServiceIntegrationTest {
             .getResponse()
             .getContentAsString();
 
-        List<Widget> allWidgets = objectMapper.readValue(response, new TypeReference<>() {
+        List<WidgetEntity> allWidgets = objectMapper.readValue(response, new TypeReference<>() {
         });
 
         //then
@@ -548,18 +552,18 @@ class WidgetServiceIntegrationTest {
             .hasSize(10);
     }
 
-    private List<Widget> initData() {
+    private List<WidgetEntity> initData() {
         return IntStream.range(-100, 100)
             .mapToObj(this::getWidget)
             .collect(Collectors.toList());
     }
 
-    private Widget getWidget(int zIndex) {
-        return Widget.builder()
+    private WidgetEntity getWidget(int zIndex) {
+        return WidgetEntity.builder()
             .height(100)
             .width(200)
-            .xPoint(1f)
-            .yPoint(1f)
+            .xPoint(1)
+            .yPoint(1)
             .zIndex(zIndex)
             .modificationDate(LocalDateTime.now())
             .build();

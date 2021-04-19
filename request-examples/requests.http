@@ -1,0 +1,59 @@
+# Sample requests to service endpoints
+
+##############################################################################
+### Create Widget
+
+POST {{baseUrl}}/api/v1/widget
+Content-Type: application/json
+
+{
+  "width": 100,
+  "height": 100,
+  "zindex": 0,
+  "xpoint": 50,
+  "ypoint": 50
+}
+
+### Update Widget
+
+PUT {{baseUrl}}/api/v1/widget/{{id}}
+Content-Type: application/json
+
+{
+  "width": 100,
+  "height": 100,
+  "zindex": 0,
+  "xpoint": 50,
+  "ypoint": 50
+}
+
+### Get All Widgets
+
+GET {{baseUrl}}/api/v1/widget
+Content-Type: application/json
+
+### Get All Widgets Pagging
+
+GET {{baseUrl}}/api/v1/widget/{{pagging}}
+Content-Type: application/json
+
+### Get All Widgets With Pagging and Coordinate Search
+
+GET {{baseUrl}}/api/v1/widget{{paggingAndCoordinate}}
+Content-Type: application/json
+
+### Get All Widgets With Coordinate Search
+
+GET {{baseUrl}}/api/v1/widget{{coordinate}}
+Content-Type: application/json
+
+### Get Widget By Id
+
+GET {{baseUrl}}/api/v1/widget/{{id}}
+Content-Type: application/json
+
+### Delete Widget By Id
+
+DELETE {{baseUrl}}/api/v1/widget/{{id}}
+Content-Type: application/json
+

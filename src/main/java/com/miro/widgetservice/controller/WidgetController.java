@@ -1,6 +1,8 @@
 package com.miro.widgetservice.controller;
 
-import com.miro.widgetservice.dto.WidgetDto;
+import com.miro.widgetservice.dto.SearchAreaDto;
+import com.miro.widgetservice.dto.WidgetReqDto;
+import com.miro.widgetservice.dto.WidgetRespDto;
 import com.miro.widgetservice.service.WidgetService;
 import java.util.List;
 import javax.validation.Valid;
@@ -26,26 +28,38 @@ public class WidgetController {
 
     @PostMapping("/widget")
     @ResponseStatus(HttpStatus.CREATED)
-    public WidgetDto createWidget(@RequestBody @Valid WidgetDto widgetDto) {
-        return widgetService.create(widgetDto);
+    public WidgetRespDto createWidget(@RequestBody @Valid WidgetReqDto widgetReqDto) {
+        return widgetService.create(widgetReqDto);
     }
 
     @PutMapping("/widget/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public WidgetDto updateWidget(@PathVariable Long id, @RequestBody @Valid WidgetDto widgetDto) {
-        return widgetService.update(id, widgetDto);
+    public WidgetRespDto updateWidget(@PathVariable Long id, @RequestBody @Valid WidgetReqDto widgetReqDto) {
+        return widgetService.update(id, widgetReqDto);
     }
 
     @GetMapping("/widget/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public WidgetDto getWidget(@PathVariable Long id) {
+    public WidgetRespDto getWidget(@PathVariable Long id) {
         return widgetService.findById(id);
     }
 
     @GetMapping("/widget")
     @ResponseStatus(HttpStatus.OK)
-    public List<WidgetDto> getAllWidgets(@RequestParam(required = false) Integer page) {
-        return widgetService.findAll(page);
+    public List<WidgetRespDto> getAllWidgets(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size,
+        @RequestParam(required = false) Integer xPoint1,
+        @RequestParam(required = false) Integer yPoint1,
+        @RequestParam(required = false) Integer xPoint2,
+        @RequestParam(required = false) Integer yPoint2) {
+
+        SearchAreaDto searchAreaDto = SearchAreaDto.builder()
+            .xPoint1(xPoint1)
+            .yPoint1(yPoint1)
+            .xPoint2(xPoint2)
+            .yPoint2(yPoint2)
+            .build();
+
+        return widgetService.findAll(page, size, searchAreaDto);
     }
 
     @DeleteMapping("/widget/{id}")

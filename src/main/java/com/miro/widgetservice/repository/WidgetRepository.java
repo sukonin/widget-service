@@ -1,5 +1,6 @@
 package com.miro.widgetservice.repository;
 
+import com.miro.widgetservice.dto.SearchAreaDto;
 import com.miro.widgetservice.model.Widget;
 import java.util.List;
 import java.util.Optional;
@@ -10,7 +11,7 @@ public interface WidgetRepository {
 
     List<Widget> findAll();
 
-    List<Widget> findAll(Integer page);
+    List<Widget> findAll(Integer page, Integer size, SearchAreaDto searchAreaDto);
 
     Widget save(Widget widget);
 
@@ -21,4 +22,6 @@ public interface WidgetRepository {
     void deleteAll();
 
     List<Widget> saveAll(List<Widget> widgetList);
+
+    List<Widget> findAll(SearchAreaDto searchAreaDto);
 }

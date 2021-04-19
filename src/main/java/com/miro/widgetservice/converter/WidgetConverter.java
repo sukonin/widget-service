@@ -1,7 +1,9 @@
 package com.miro.widgetservice.converter;
 
-import com.miro.widgetservice.dto.WidgetDto;
+import com.miro.widgetservice.dto.WidgetReqDto;
+import com.miro.widgetservice.dto.WidgetRespDto;
 import com.miro.widgetservice.model.Widget;
+import com.miro.widgetservice.model.WidgetEntity;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -12,11 +14,19 @@ public class WidgetConverter {
 
     private final ModelMapper modelMapper;
 
-    public WidgetDto convert(Widget widget) {
-        return modelMapper.map(widget, WidgetDto.class);
+    public WidgetRespDto convert(Widget widget) {
+        return modelMapper.map(widget, WidgetRespDto.class);
     }
 
-    public Widget convert(WidgetDto widgetDto) {
-        return modelMapper.map(widgetDto, Widget.class);
+    public Widget convert(WidgetReqDto widgetReqDto) {
+        return modelMapper.map(widgetReqDto, Widget.class);
+    }
+
+    public WidgetEntity convertEntity(WidgetReqDto widgetReqDto) {
+        return modelMapper.map(widgetReqDto, WidgetEntity.class);
+    }
+
+    public WidgetRespDto convertEntity(WidgetEntity widgetEntity) {
+        return modelMapper.map(widgetEntity, WidgetRespDto.class);
     }
 }

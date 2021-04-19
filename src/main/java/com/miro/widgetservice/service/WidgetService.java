@@ -1,17 +1,19 @@
 package com.miro.widgetservice.service;
 
-import com.miro.widgetservice.dto.WidgetDto;
+import com.miro.widgetservice.dto.SearchAreaDto;
+import com.miro.widgetservice.dto.WidgetReqDto;
+import com.miro.widgetservice.dto.WidgetRespDto;
 import java.util.List;
 
 public interface WidgetService {
 
-    WidgetDto create(WidgetDto widgetDto);
+    WidgetRespDto create(WidgetReqDto widgetReqDto);
 
-    WidgetDto update(Long id, WidgetDto widgetDto);
+    WidgetRespDto update(Long id, WidgetReqDto widgetReqDto);
 
-    WidgetDto findById(Long id);
+    WidgetRespDto findById(Long id);
 
-    List<WidgetDto> findAll(Integer page);
+    List<WidgetRespDto> findAll(Integer page, Integer size, SearchAreaDto searchAreaDto);
 
     void deleteById(Long id);
 
