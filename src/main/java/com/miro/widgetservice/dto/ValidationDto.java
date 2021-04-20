@@ -1,5 +1,6 @@
 package com.miro.widgetservice.dto;
 
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Value;
 
@@ -7,7 +8,12 @@ import lombok.Value;
 @Builder
 public class ValidationDto {
 
-    String field;
+    boolean success;
 
-    String message;
+    Object payload;
+
+    String errorMessage;
+
+    LocalDateTime timestamp;
+
 }
